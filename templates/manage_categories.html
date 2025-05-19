@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Categories</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .navbar-brand img {
+            height: 40px;
+        }
+
+        .navbar-nav .nav-link {
+            color: white !important;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #FFCE56 !important;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <a class="navbar-brand" href="#">
+            <img src="/static/logo.png" alt="Logo"> Smart Expense
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item"><a class="nav-link" href="/admin_dashboard">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin_profile">Profile</a></li>
+                <li class="nav-item"><a class="nav-link" href="/manage_users">Manage Users</a></li>
+                <li class="nav-item"><a class="nav-link" href="/manage_categories">Manage Categories</a></li>
+                <li class="nav-item"><a class="nav-link" href="/view_feedbacks">View Feedbacks</a></li>
+                <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="category-container" style="padding-top: 70px;">
+        <h1>Manage Categories</h1>
+        <div class="category-form">
+            <form action="{{ url_for('add_category') }}" method="POST">
+                <input type="text" name="category_name" placeholder="New Category Name" required>
+                <button type="submit">Add Category</button>
+            </form>
+        </div>
+
+        <div class="category-list">
+            <h2>Existing Categories</h2>
+            <ul>
+                {% for category in categories %}
+                <li>
+                    <input type="text" class="edit-input-inline" id="edit-input-{{ category.cid }}" value="{{ category.name }}" readonly>
+                    <div class="button-group">
+                        <button class="edit-btn" id="edit-btn-{{ category.cid }}" onclick="enableEdit('{{ category.cid }}')">Edit</button>
+                        <button class="save-btn" id="save-btn-{{ category.cid }}" onclick="saveCategory('{{ category.cid }}')" style="display:none;">Save</button>
+                        <button class="delete-btn" id="delete-btn-{{ category.cid }}" onclick="window.location.href='{{ url_for('delete_category', category_id=category.cid) }}'">Delete</button>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function enableEdit(categoryId) {
+            const inputField = document.getElementById('edit-input-' + categoryId);
+            const editBtn = document.getElementById('edit-btn-' + categoryId);
+            const saveBtn = document.getElementById('save-btn-' + categoryId);
+            const deleteBtn = document.getElementById('delete-btn-' + categoryId);
+
+            inputField.removeAttribute('readonly');
+            inputField.focus();
+
+            editBtn.style.display = 'none';
+            saveBtn.style.display = 'inline';
+            deleteBtn.style.display = 'none';
+        }
+
+        function saveCategory(categoryId) {
+            const newCategoryName = document.getElementById('edit-input-' + categoryId).value;
+
+            fetch('/edit_category/' + categoryId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    category_name: newCategoryName
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('edit-input-' + categoryId).setAttribute('readonly', true);
+                    document.getElementById('edit-btn-' + categoryId).style.display = 'inline';
+                    document.getElementById('save-btn-' + categoryId).style.display = 'none';
+                    document.getElementById('delete-btn-' + categoryId).style.display = 'inline';
+                } else {
+                    alert('Failed to update category. Please try again.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

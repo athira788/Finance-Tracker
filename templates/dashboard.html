@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('{{ url_for("static", filename="background.jpg") }}') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            height: 100vh;
+        }
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .bg-whi {
+            background-color: rgb(225, 245, 248);
+        }
+        .shadow {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .dashboard-content {
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 500px;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            background-color: rgb(225, 245, 248);
+        }
+        .tab-content {
+            margin-top: 20px;
+        }
+        .tab-content .hidden {
+            display: none;
+        }
+        .quick-link-card {
+            cursor: pointer;
+            text-align: center;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            background-color: aliceblue;
+        }
+        .quick-link-card:hover {
+            background-color: #f8f9fa;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    {% include 'navbar.html' %}
+
+    <div class="container mt-4">
+        <div class="bg-whi rounded p-4 shadow">
+            <ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="dahsboard-tab" data-toggle="tab" href="#dahsboard" role="tab" aria-controls="dahsboard" aria-selected="true">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="charts-tab" data-toggle="tab" href="#charts" role="tab" aria-controls="charts" aria-selected="false">Charts & Analysis</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="reports-tab" data-toggle="tab" href="#reports" role="tab" aria-controls="reports" aria-selected="false">Reports</a> <!-- New Tab -->
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="dahsboard" role="tabpanel" aria-labelledby="dahsboard-tab">
+                    <div class="dashboard-content text-center">
+                        <h1>Welcome to Your Dashboard, {{ first_name }}!</h1>
+                        <p style="font-size: 25px;">
+                            Your remaining budget is: 
+                            <strong style="color: {% if balance < 0 %}red{% else %}green{% endif %};">
+                                ${{ balance }}
+                            </strong>
+                        </p>
+                        
+                        {% if balance < 0 %}
+                            <p style="color: red; font-size: 25px;">Budget exceeded!</p>
+                        {% endif %}
+                        
+                        <p>Here you can manage your expenses, view your budget, and manage your profile.</p>
+                    
+                        <div class="row text-center">
+                            <div class="col-12 col-md-4">
+                                <a href="{{ url_for('profile') }}" class="text-dark text-decoration-none">
+                                    <div class="quick-link-card">
+                                        <h4>Profile</h4>
+                                        <p>Manage your profile. Budget increased? Please update in your profile.</p>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <a href="{{ url_for('add_expense') }}" class="text-dark text-decoration-none">
+                                    <div class="quick-link-card">
+                                        <h4>Add Expense</h4>
+                                        <p>Quickly add new expenses to keep track of your spending.</p>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <a href="{{ url_for('view_expense') }}" class="text-dark text-decoration-none">
+                                    <div class="quick-link-card">
+                                        <h4>View Expense</h4>
+                                        <p>Review your spending history and analyze your budget.</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="charts" role="tabpanel" aria-labelledby="charts-tab">
+                    <div class="dashboard-content">
+                        <h2 class="text-center">Expense Analysis</h2>
+
+                        <div class="form-group text-center">
+                            <label for="viewFilter">Select View:</label>
+                            <select class="form-control w-50 mx-auto" id="viewFilter">
+                                <option selected>Select a view</option>
+                                <option value="budget">Current Month Expenses VS Overall Budget</option>
+                                <option value="monthly">Monthly Expenses (Last 6 months)</option>
+                                <option value="category">Expenses by Category (Current Month)</option>
+                                <option value="category_monthly">Expenses by Category per Month (Last 6 months)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="chart-container pie hidden" id="budgetPieChartContainer">
+                                    <canvas id="budgetPieChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="chart-container hidden" id="monthlyExpensesContainer">
+                                    <canvas id="expenseChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="chart-container hidden" id="categoryExpensesContainer">
+                                    <canvas id="categoryChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="chart-container hidden" id="categoryMonthlyExpensesContainer">
+                                    <canvas id="categoryMonthlyChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+                <div class="tab-pane fade" id="reports" role="tabpanel" aria-labelledby="reports-tab">
+                    <div class="dashboard-content">
+                        <h2 class="text-center">Expense Reports</h2>
+                        <p style="text-align: center;">Here you can view detailed reports of your expenses.</p>
+                        <div class="form-group text-center">
+                            <label for="yearSelect">Select Year:</label>
+                            <select class="form-control w-25 mx-auto" id="yearSelect">
+                                <option selected>Select a year</option>
+                                {% for year in range(current_year - 10, current_year + 1) %}
+                                    <option value="{{ year }}">{{ year }}</option>
+                                {% endfor %}
+                            </select>
+                        
+                            <label for="monthSelect" class="mt-3">Select Month:</label>
+                            <select class="form-control w-25 mx-auto" id="monthSelect">
+                                <option selected>Select a month</option>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                            
+                            <button id="getReportButton" class="btn btn-primary mt-2">Get Report</button>
+                            <button id="downloadReportButton" class="btn btn-success mt-2" disabled>Download Report</button>
+                        </div>
+                        
+                        
+                        <div id="expenseReport" class="mt-4">
+                            <h3>Expense Report for <span id="selectedMonth"></span></h3>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reportTableBody">
+                                </tbody>
+                            </table>
+                            <p><strong>Overall Budget:</strong> <span id="overallBudget"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        
+        document.getElementById('getReportButton').addEventListener('click', function (event) {
+    event.preventDefault();
+
+    const selectedMonth = document.getElementById('monthSelect').value;
+    const yearSelect = document.getElementById('yearSelect').value; 
+
+    if (selectedMonth === "Select a month" || yearSelect === "Select Year") {
+        alert("Please select both month and year.");
+        return;
+    }
+
+    document.getElementById('selectedMonth').innerText = selectedMonth;
+    
+    $.post('/get_expense_report', { month: selectedMonth, year: yearSelect }, function (data) {
+        document.getElementById('reportTableBody').innerHTML = '';
+        
+        if (Object.keys(data.expenses).length === 0) {
+            alert("No records found for the selected month and year.");
+            document.getElementById('downloadReportButton').disabled = true; 
+            return;
+        }
+
+        for (const [category, amount] of Object.entries(data.expenses)) {
+            const row = `<tr>
+                            <td>${category}</td>
+                            <td>$${amount.toFixed(2)}</td>
+                        </tr>`;
+            document.getElementById('reportTableBody').innerHTML += row;
+        }
+        
+        document.getElementById('overallBudget').innerText = `$${data.overall_budget.toFixed(2)}`;
+        document.getElementById('expenseReport').style.display = 'block';
+
+        document.getElementById('downloadReportButton').disabled = false;
+    });
+});
+
+document.getElementById('downloadReportButton').addEventListener('click', function () {
+    const reportTable = document.getElementById('reportTableBody');
+    
+    if (reportTable.rows.length === 0) {
+        alert("No report available to download.");
+        return;
+    }
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Category,Amount\n"; 
+    for (const row of reportTable.rows) {
+        const category = row.cells[0].innerText;
+        const amount = row.cells[1].innerText.replace('$', ''); 
+        csvContent += `${category},${amount}\n`;
+    }
+
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `expense_report.csv`);
+    document.body.appendChild(link); 
+    link.click(); 
+    document.body.removeChild(link);
+});
+
+
+        const ctxExpense = document.getElementById('expenseChart').getContext('2d');
+        const expenseChart = new Chart(ctxExpense, {
+            type: 'bar',
+            data: {
+                labels: {{ monthly_labels|tojson }},
+                datasets: [{
+                    label: 'Monthly Expenses',
+                    data: {{ monthly_values|tojson }},
+                    backgroundColor: 'rgba(0, 128, 128, 0.6)',  
+                    borderColor: 'rgba(0, 128, 128, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, 
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Amount'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Months'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    },
+                    tooltip: {
+                        enabled: true,
+                    }
+                }
+            }
+        });
+
+        const ctx = document.getElementById('budgetPieChart').getContext('2d');
+        const budgetData = {
+            labels: ['Expenses', 'Overall Budget'],
+            datasets: [{
+                data: [{{ chart_data['expenses'] }}, {{ chart_data['remaining_budget'] }}],
+                backgroundColor: ['#FF6384', '#36A2EB']
+            }]
+        };
+
+        const budgetConfig = {
+            type: 'pie',
+            data: budgetData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top', 
+                        align: 'start'
+                    }
+                }
+            }
+        };
+        const pieChart = new Chart(ctx, budgetConfig);
+
+        const ctxCategory = document.getElementById('categoryChart').getContext('2d');
+        const categoryChart = new Chart(ctxCategory, {
+            type: 'pie',
+            data: {
+                labels: {{ category_labels|tojson }},
+                datasets: [{
+                    label: 'Category Expenses',
+                    data: {{ category_values|tojson }},
+                    backgroundColor: [
+                        'rgba(75, 0, 130, 0.6)',  
+                        'rgba(0, 102, 204, 0.6)',  
+                        'rgba(255, 140, 0, 0.6)',   
+                        'rgba(204, 0, 102, 0.6)',  
+                        'rgba(0, 153, 153, 0.6)',   
+                        'rgba(153, 0, 76, 0.6)'    
+                    ],
+                    borderColor: [
+                        'rgba(75, 0, 130, 1)',  
+                        'rgba(0, 102, 204, 1)',    
+                        'rgba(255, 140, 0, 1)',     
+                        'rgba(204, 0, 102, 1)',     
+                        'rgba(0, 153, 153, 1)',     
+                        'rgba(153, 0, 76, 1)'       
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,  
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Expenses by Category'
+                    },
+                    tooltip: {
+                        enabled: true,
+                    }
+                }
+            }
+        });
+
+        const categoryColors = [
+    'rgba(75, 192, 192, 0.6)',     
+    'rgba(255, 99, 132, 0.6)',      
+    'rgba(255, 159, 64, 0.6)',      
+    'rgba(255, 205, 86, 0.6)',       
+    'rgba(54, 162, 235, 0.6)',       
+    'rgba(153, 102, 255, 0.6)',      
+    'rgba(201, 203, 207, 0.6)',       
+    'rgba(255, 99, 71, 0.6)',       
+    'rgba(0, 128, 0, 0.6)',         
+    'rgba(255, 215, 0, 0.6)',       
+    'rgba(100, 149, 237, 0.6)',     
+    'rgba(244, 164, 96, 0.6)',       
+    'rgba(238, 130, 238, 0.6)',     
+    'rgba(135, 206, 235, 0.6)',     
+    'rgba(144, 238, 144, 0.6)',      
+    'rgba(255, 192, 203, 0.6)',     
+    'rgba(220, 20, 60, 0.6)',       
+    'rgba(210, 105, 30, 0.6)',      
+    'rgba(135, 206, 250, 0.6)',      
+    'rgba(128, 0, 128, 0.6)',       
+    'rgba(0, 0, 139, 0.6)'          
+];
+
+
+
+const ctxCategoryMonthly = document.getElementById('categoryMonthlyChart').getContext('2d');
+const categoryMonthlyChart = new Chart(ctxCategoryMonthly, {
+    type: 'bar',
+    data: {
+        labels: {{ category_monthly_labels|tojson }},
+        datasets: [
+            {% for label in category_labels %}
+            {
+                label: 'Category {{ label }}',
+                data: {{ category_monthly_values[label]|tojson }},
+                backgroundColor: categoryColors[{{ loop.index0 }}],  
+                borderColor: categoryColors[{{ loop.index0 }}].replace(/0.6/, '1'),  
+                borderWidth: 1
+            },
+            {% endfor %}
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Amount'
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Months'
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+            },
+            tooltip: {
+                enabled: true,
+            }
+        }
+    }
+});
+
+        document.getElementById('viewFilter').addEventListener('change', function () {
+            const value = this.value;
+            document.querySelectorAll('.chart-container').forEach(container => container.classList.add('hidden'));
+            if (value === 'budget') {
+                document.getElementById('budgetPieChartContainer').classList.remove('hidden');
+            } else if (value === 'monthly') {
+                document.getElementById('monthlyExpensesContainer').classList.remove('hidden');
+            } else if (value === 'category') {
+                document.getElementById('categoryExpensesContainer').classList.remove('hidden');
+            } else if (value === 'category_monthly') {
+                document.getElementById('categoryMonthlyExpensesContainer').classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

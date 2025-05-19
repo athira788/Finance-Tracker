@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Expense</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            background: url('{{ url_for("static", filename="background.jpg") }}') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        .container {
+            position: absolute;
+            width: 90%;
+            max-width: 1000px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 100px;
+            height: auto;
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        form {
+            width: 45%;
+            padding: 20px;
+            background-color: rgb(225, 245, 248);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        input {
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 10px;
+        }
+
+        .header .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .header .logo img {
+            max-height: 80px; 
+            width: auto;
+        }
+
+        .header h1 {
+            margin-left: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .logo img {
+            width: 100%; 
+            height: 100px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                padding: 30px;
+            }
+
+            .form-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            form {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 600px){
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            form {
+                padding: 15px;
+                width: 95%;
+            }
+
+            input {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            button {
+                font-size: 16px;
+                padding: 10px;
+            }
+
+            .container {
+                padding: 40px;
+                width : 80%;
+                margin-top: 300px;
+                height:100%;
+            }
+        }
+
+        @media (max-width: 1024px){
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            form {
+                padding: 15px;
+                width: 100%;
+            }
+
+            input {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            button {
+                font-size: 16px;
+                padding: 10px;
+            }
+
+            .container {
+                padding: 40px;
+                width : 80%;
+                margin-top:10px;
+                height: 80%;
+            }
+        }
+
+        a.forgot-password {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            text-align: center;
+            color: #0a620d;
+            text-decoration: none;
+            margin-top: 10px;
+            display: inline-block;
+            transition: color 0.3s ease;
+        }
+
+        a.forgot-password:hover {
+            color: #154e18;
+            text-decoration: underline;
+        }
+
+        .signup-button {
+            margin-top: 20px;
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
+        .signup-button:hover {
+            background-color: #0056b3;
+        }
+
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <a href="/"><img src="{{ url_for('static', filename='logo.png') }}" alt="Finance Tracker Logo" title="Smart Expense"></a>
+                <h1>Smart Expense: Personal Financial Tracker</h1>
+            </div>
+        </div>
+        <h2>Your Finances, Simplified</h2>
+
+        <div id="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=True) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="{{ category }}-message">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <div class="form-container">
+            <form action="/" method="POST" class="login-form">
+                <h2>Login</h2> 
+                {% if 'login' in errors %}
+                    <div class="error-message">{{ errors['login'] }}</div>
+                {% endif %}
+                <input type="email" name="login_email" placeholder="Email" value="{{ request.form.get('login_email', '') }}" required>
+                <input type="password" name="login_password" placeholder="Password" value="{{ request.form.get('login_password', '') }}" required>
+                <button type="submit">Login</button>
+                <a href="/resetPassword" class="forgot-password">Forgot Password?</a>
+            </form>
+
+            <form action="/" method="POST" class="signup-form">
+                <h2>Signup</h2>
+                {% if errors %}
+                    {% if 'first_name' in errors %}
+                        <div class="error-message">{{ errors['first_name'] }}</div>
+                    {% endif %}
+                    {% if 'last_name' in errors %}
+                        <div class="error-message">{{ errors['last_name'] }}</div>
+                    {% endif %}
+                    {% if 'signup_email' in errors %}
+                        <div class="error-message">{{ errors['signup_email'] }}</div>
+                    {% endif %}
+                    {% if 'signup_password' in errors %}
+                        <div class="error-message">{{ errors['signup_password'] }}</div>
+                    {% endif %}
+                    {% if 'confirm_password' in errors %}
+                        <div class="error-message">{{ errors['confirm_password'] }}</div>
+                    {% endif %}
+                    {% if 'monthly_budget' in errors %}
+                        <div class="error-message">{{ errors['monthly_budget'] }}</div>
+                    {% endif %}
+                    {% if 'security_answer_1' in errors %}
+                        <div class="error-message">{{ errors['security_answer_1'] }}</div>
+                    {% endif %}
+                    {% if 'security_answer_2' in errors %}
+                        <div class="error-message">{{ errors['security_answer_2'] }}</div>
+                    {% endif %}
+                {% endif %}
+                <div class="form-group">
+                    <input type="text" name="first_name" placeholder="First Name" value="{{ form_data['first_name'] }}" class="{{ 'error' if 'first_name' in errors else '' }}" required>
+                    <input type="text" name="last_name" placeholder="Last Name" value="{{ form_data['last_name'] }}" class="{{ 'error' if 'last_name' in errors else '' }}" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="middle_name" placeholder="Middle Name" value="{{ form_data['middle_name'] }}">
+                    <input type="email" name="signup_email" placeholder="Email" value="{{ form_data['signup_email'] }}" class="{{ 'error' if 'signup_email' in errors else '' }}" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" name="signup_password" placeholder="Password" class="{{ 'error' if 'signup_password' in errors else '' }}" required>
+                    <input type="password" name="confirm_password" placeholder="Confirm Password" class="{{ 'error' if 'confirm_password' in errors else '' }}" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="monthly_budget" placeholder="Monthly Budget" value="{{ form_data['monthly_budget'] }}" class="{{ 'error' if 'monthly_budget' in errors else '' }}">
+                </div>
+                <div class="form-group">
+                    <input type="text" name="security_question_1" placeholder="Security Question 1" required>
+                    <input type="text" name="security_answer_1" placeholder="Your Answer" class="{{ 'error' if 'security_answer_1' in errors else '' }}" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="security_question_2" placeholder="Security Question 2" required>
+                    <input type="text" name="security_answer_2" placeholder="Your Answer" class="{{ 'error' if 'security_answer_2' in errors else '' }}" required>
+                </div>
+                <button type="submit">Sign Up</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

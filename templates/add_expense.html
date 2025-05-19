@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Expense</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('{{ url_for("static", filename="background.jpg") }}') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        .navbar-brand img {
+            height: 40px;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .card {
+            background-color: rgb(225, 245, 248);
+            padding: 20px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    {% include 'navbar.html' %}
+
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                <div class="alert alert-dismissible fade show" id="flash-message" role="alert">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h3 class="card-title text-center">Add Expense</h3>
+            <form action="{{ url_for('add_expense') }}" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="recurring_expense">Autofill Recurring Expense</label>
+                    <select class="form-control" id="recurring_expense" name="recurring_expense">
+                        <option value="">Select a Recurring Expense (Optional)</option>
+                        {% for expense in recurring_expenses %}
+                            <option value="{{ expense.eid }}" 
+                                    data-name="{{ expense.name }}" 
+                                    data-amount="{{ expense.amount }}" 
+                                    data-category="{{ expense.cid }}" 
+                                    data-notes="{{ expense.notes }}">
+                                {{ expense.name }} - {{ expense.amount }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="expense_name">Expense Name</label>
+                    <input type="text" class="form-control" id="expense_name" name="expense_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="amount">Amount</label>
+                    <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" class="form-control" id="date" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select class="form-control" id="category" name="category" required>
+                        <option value="">Select Category</option>
+                        {% for category in categories %}
+                            <option value="{{ category.cid }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="notes">Notes</label>
+                    <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="is_recurring" name="is_recurring">
+                    <label class="form-check-label" for="is_recurring">Mark as Recurring Expense</label>
+                </div>
+                <div class="form-group">
+                    <label for="documents">Upload Documents (Optional)</label>
+                    <input type="file" class="form-control-file" id="documents" name="documents" multiple>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Add Expense</button>
+            </form>
+        </div>
+    </div>
+
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        document.getElementById('recurring_expense').addEventListener('change', function () {
+            var selectedOption = this.options[this.selectedIndex];
+            if (selectedOption.value !== '') {
+                document.getElementById('expense_name').value = selectedOption.getAttribute('data-name');
+                document.getElementById('amount').value = selectedOption.getAttribute('data-amount');
+                document.getElementById('category').value = selectedOption.getAttribute('data-category');
+                document.getElementById('notes').value = selectedOption.getAttribute('data-notes');
+            } else {
+                document.getElementById('expense_name').value = '';
+                document.getElementById('amount').value = '';
+                document.getElementById('category').value = '';
+                document.getElementById('notes').value = '';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+    var today = new Date();
+    var day = ("0" + today.getDate()).slice(-2);
+    var month = ("0" + (today.getMonth() + 1)).slice(-2); 
+    var year = today.getFullYear();
+    
+    var formattedDate = year + '-' + month + '-' + day;
+    document.getElementById('date').setAttribute('value', formattedDate);
+});
+
+        $(document).ready(function() {
+            if ($('#flash-message').length) {
+                setTimeout(function() {
+                    $('#flash-message').alert('close');
+                }, 5000); 
+            }
+        });
+    </script>
+    
+</body>
+</html>

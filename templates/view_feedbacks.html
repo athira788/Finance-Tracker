@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .navbar-brand img {
+            height: 40px;
+        }
+
+        .navbar-nav .nav-link {
+            color: white !important;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #FFCE56 !important;
+        }
+        .dlt-btn{
+            background-color: #dc3545;
+            color: white;
+        }
+        .dlt-btn:hover{
+            background-color: #d92033;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <a class="navbar-brand" href="#">
+            <img src="/static/logo.png" alt="Logo"> Smart Expense
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item"><a class="nav-link" href="/admin_dashboard">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin_profile">Profile</a></li>
+                <li class="nav-item"><a class="nav-link" href="/manage_users">Manage Users</a></li>
+                <li class="nav-item"><a class="nav-link" href="/manage_categories">Manage Categories</a></li>
+                <li class="nav-item"><a class="nav-link" href="/view_feedbacks">View Feedbacks</a></li>
+                <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="user-container" style="padding-top: 100px;"> 
+        <h1>View Feedbacks</h1>
+        <div class="user-list">
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Subject</th>
+                        <th>Message</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for feedback in feedbacks %}
+                    <tr>
+                        <td>{{ feedback.name }}</td>
+                        <td>{{ feedback.email}}</td>
+                        <td>{{ feedback.phone }}</td>
+                        <td>{{feedback.subject}}</td>
+                        <td>{{feedback.message}}</td>
+                        <td >
+                            <form action="{{ url_for('delete_feedback', id=feedback.id) }}" method="POST" style="display: inline;">
+                                <button type="submit" class="dlt-btn">Delete</button>
+                            </form>
+                        </td>
+                        
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
