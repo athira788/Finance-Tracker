@@ -1,0 +1,683 @@
+body {
+  font-family: "Arial", sans-serif;
+  height: 100vh;
+  background: url('{{ url_for("static", filename="background.jpg") }}')
+    no-repeat center center fixed;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flash-messages {
+  margin-bottom: 20px;
+  width: 100%;
+  text-align: center;
+}
+
+.flash {
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  position: relative;
+  display: inline-block;
+  transition: opacity 0.5s ease-in-out;
+}
+.flash.danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.flash.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.flash.info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-message {
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  display: inline-block;
+  position: relative;
+}
+
+.status-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+.card-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.card {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  width: 30%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.card h2 {
+  margin-bottom: 15px;
+}
+
+.card p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.card button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.card button:hover {
+  background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+  .card {
+    width: 100%;
+  }
+}
+
+/* Container for the category management page */
+.category-container {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  width: 80%;
+  max-width: 800px;
+  margin: auto;
+  text-align: center;
+}
+
+/* Category Form Styling */
+.category-form {
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: center; /* Center the form */
+}
+
+.category-form form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.category-form input {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  flex: 1;
+}
+
+.category-form button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.category-form button:hover {
+  background-color: #0056b3;
+}
+
+/* Category List Styling */
+.category-list {
+  text-align: left;
+}
+
+.category-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.category-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.category-name {
+  flex-grow: 1;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+.category-list li .edit-btn,
+.category-list li .delete-btn,
+.category-list li .save-btn {
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.category-list li .edit-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.category-list li .save-btn {
+  background-color: #ffc107;
+  color: white;
+}
+
+.category-list li .delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.category-list li .edit-btn:hover {
+  background-color: #218838;
+}
+
+.category-list li .save-btn:hover {
+  background-color: #e0a800;
+}
+
+.category-list li .delete-btn:hover {
+  background-color: #c82333;
+}
+
+/* Input styling for edit mode */
+.edit-input {
+  flex-grow: 1;
+  padding: 5px;
+  display: none;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .category-form form {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .category-list li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .category-list li .button-group {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .category-list li .edit-btn,
+  .category-list li .delete-btn,
+  .category-list li .save-btn {
+    width: 100%;
+    margin-top: 5px;
+  }
+}
+/* Styling for Manage Users Page */
+/* Container for the manage users page */
+.user-container {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+  width: 80%;
+  max-width: 800px;
+  margin: auto;
+  text-align: center;
+}
+
+/* Styling for the user table */
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+  font-size: 16px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Header styling */
+.styled-table thead {
+  background-color: #007bff;
+  color: white;
+}
+
+.styled-table thead th {
+  padding: 15px 10px;
+  text-align: left;
+  font-size: 18px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.styled-table tbody td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+  background-color: #f9f9f9;
+}
+
+.styled-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Action buttons group */
+.button-group {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.edit-btn,
+.reset-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.edit-btn {
+  background-color: #28a745;
+}
+
+.edit-btn:hover {
+  background-color: #218838;
+}
+
+.reset-btn {
+  background-color: #ffc107;
+}
+
+.reset-btn:hover {
+  background-color: #e0a800;
+}
+
+/* Mobile responsive design */
+@media (max-width: 768px) {
+  .styled-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .styled-table thead {
+    display: none;
+  }
+
+  .styled-table tbody tr {
+    display: block;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #ddd;
+  }
+
+  .styled-table td {
+    display: block;
+    text-align: right;
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .styled-table td::before {
+    content: attr(data-label);
+    float: left;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  .button-group {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .edit-btn,
+  .reset-btn {
+    width: 100%;
+    margin-top: 10px;
+  }
+}
+
+body {
+  font-family: "Arial", sans-serif;
+  height: 100vh;
+  background: url('{{ url_for("static", filename="background.jpg") }}')
+    no-repeat center center fixed;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 50px;
+  border-radius: 15px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80%;
+  max-width: 1000px;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 0px;
+}
+
+.header .logo img {
+  max-height: 80px;
+  width: auto;
+}
+
+.logo img {
+  width: 100px;
+  height: 100px;
+}
+
+.form-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+form {
+  width: 45%;
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+input {
+  padding: 15px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  padding: 15px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+@media (max-width: 768px) {
+  .form-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  form {
+    width: 100%;
+  }
+}
+
+.flash-messages {
+  margin-bottom: 20px;
+  width: 100%;
+  text-align: center;
+}
+
+.flash {
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  position: relative;
+  display: inline-block;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.flash.danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.flash.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.flash.info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+a.forgot-password {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 14px;
+  text-align: center;
+  color: #0a620d;
+  text-decoration: none;
+  margin-top: 10px;
+  display: inline-block;
+  transition: color 0.3s ease;
+}
+
+a.forgot-password:hover {
+  color: #154e18;
+  text-decoration: underline;
+}
+
+.status-message {
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  display: inline-block;
+  position: relative;
+}
+
+.status-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.signup-button {
+  margin-top: 20px;
+  display: inline-block;
+  padding: 15px 30px;
+  background-color: #007bff;
+  color: white;
+  text-align: center;
+  border-radius: 5px;
+  text-decoration: none;
+}
+
+.signup-button:hover {
+  background-color: #0056b3;
+}
+
+/* Styling for Edit User Form */
+.edit-user-form {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.edit-user-form .form-group {
+  margin-bottom: 20px;
+}
+
+.edit-user-form label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: #333;
+}
+
+.edit-user-form input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.edit-user-form input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Form Actions Styling */
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+}
+
+/* General Button Styling */
+.btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+  color: white;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+/* Save Button */
+.save-btn {
+  background-color: #28a745;
+}
+
+.save-btn:hover {
+  background-color: #218838;
+}
+
+/* Cancel Button */
+.cancel-btn {
+  background-color: #dc3545;
+}
+
+.cancel-btn:hover {
+  background-color: #c82333;
+  text-decoration: none;
+}
+
+/* Responsive Styling */
+@media (max-width: 768px) {
+  .edit-user-form {
+    width: 90%;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+/* Admin Container Styling */
+.admin-container {
+  background: url('{{ url_for("static", filename="background.jpg") }}')
+    no-repeat center center fixed; /* Slightly transparent white background */
+  padding: 50px;
+  border-radius: 15px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.2); /* Soft shadow around the container */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80%; /* Takes up 80% of the screen width */
+  max-width: 100%;
+  margin-top: 220px; /* Add some margin from the top */
+  overflow: auto; /* Ensure scrolling if the content is too large */
+}
+
+@media (max-width: 768px) {
+  .admin-container {
+    width: 90%; /* Adjust width for smaller screens */
+    padding: 20px; /* Reduce padding for small screens */
+  }
+
+  .card-container {
+    flex-direction: column; /* Stack cards vertically on smaller screens */
+    width: 100%;
+  }
+
+  .card {
+    width: 100%; /* Cards take full width on small screens */
+    padding: 10px; /* Reduce padding on smaller screens */
+  }
+
+  h1 {
+    font-size: 1.5rem; /* Reduce font size for smaller screens */
+  }
+}
